@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 const userSchema = new Schema(
   {
     username: {
@@ -60,16 +60,16 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
   return await bcrypt.compare(password, this.password);
 };
 
-if (
-  !process.env.ACCESS_TOKEN_SECRET ||
-  !process.env.REFRESH_TOKEN_SECRET ||
-  !process.env.ACCESS_TOKEN_EXPIRY ||
-  !process.env.REFRESH_TOKEN_EXPIRY
-) {
-  throw new Error(
-    "ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, ACCESS_TOKEN_EXPIRY, and REFRESH_TOKEN_EXPIRY must be defined in the .env file"
-  );
-}
+// if (
+//   !process.env.ACCESS_TOKEN_SECRET ||
+//   !process.env.REFRESH_TOKEN_SECRET ||
+//   !process.env.ACCESS_TOKEN_EXPIRY ||
+//   !process.env.REFRESH_TOKEN_EXPIRY
+// ) {
+//   throw new Error(
+//     "ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, ACCESS_TOKEN_EXPIRY, and REFRESH_TOKEN_EXPIRY must be defined in the .env file"
+//   );
+// }
 
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(

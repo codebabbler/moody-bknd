@@ -1,5 +1,3 @@
-import e from "express";
-
 class ApiErrors extends Error {
   statusCode: number;
   data: any;
