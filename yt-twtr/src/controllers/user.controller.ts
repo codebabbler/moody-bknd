@@ -18,6 +18,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
   const { fullName, username, email, password } = req.body;
   console.log("fullName: ", fullName);
+  console.log("username: ", username);
+  console.log("email: ", email);
+  console.log("password: ", password);
+  console.log("req.files: ", req.files);
 
   if (
     [fullName, username, email, password].some(
@@ -36,10 +40,19 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   //for ts type error bs
-  const files = req.files as {
-    avatar?: Express.Multer.File[];
-    coverImage?: Express.Multer.File[];
-  };
+  // const files = req.files as {
+  //   avatar?: Express.Multer.File[];
+  //   coverImage?: Express.Multer.File[];
+  // };
+
+  //GPT fix:
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  // const rawFiles = req.files ?? {};
+  // const files = {
+  //   avatar: rawFiles["avatar"],
+  //   coverImage: rawFiles["coverImage"],
+  // };
+
   const avatarLocalPath = files.avatar?.[0]?.path ?? null;
   const coverImageLocalPath = files.coverImage?.[0]?.path ?? null;
 
