@@ -23,9 +23,10 @@ const registerUser = asyncHandler(async (req, res) => {
   console.log("password: ", password);
   console.log("req.files: ", req.files);
 
+  // Validate required fields
   if (
     [fullName, username, email, password].some(
-      (field) => field?.trim === undefined
+      (field) => field === undefined || field === null || field.trim() === ""
     )
   ) {
     throw new ApiErrors(400, "All fields are required");
@@ -60,25 +61,17 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiErrors(400, "Avatar image is required");
   }
 
+  // Upload avatar to cloudinary
   const avatar = await uploadOnCloudinary(avatarLocalPath);
-
-  // coverImage as a constant:
-  const coverImage = coverImageLocalPath
-    ? await uploadOnCloudinary(coverImageLocalPath)
-    : null;
-
-  // coverImage as a vatiable:
-  // let coverImage = null;
-  // if (coverImageLocalPath) {
-  //   coverImage = await uploadOnCloudinary(coverImageLocalPath);
-  //   Optional: Add error handling if cover image upload fails but is provided
-  //   if (!coverImage) {
-  //     throw new ApiErrors(500, "Failed to upload cover image");
-  //   }
-  // }
-
   if (!avatar) {
-    throw new ApiErrors(400, "Avatar image is required");
+    throw new ApiErrors(500, "Avatar upload failed. Please try again.");
+  }
+
+  // Upload cover image if provided
+  let coverImage = null;
+  if (coverImageLocalPath) {
+    coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    // Not blocking registration if cover image upload fails
   }
   const user = await User.create({
     fullName,
