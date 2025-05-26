@@ -31,18 +31,18 @@ cloudinary.config({
 });
 
 // Debug configuration
-console.log("Cloudinary Configuration Status:", {
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? "✅ Present" : "❌ Missing",
-  api_key: process.env.CLOUDINARY_API_KEY ? "✅ Present" : "❌ Missing",
-  api_secret: process.env.CLOUDINARY_API_SECRET ? "✅ Present" : "❌ Missing"
-});
+// console.log("Cloudinary Configuration Status:", {
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? "✅ Present" : "❌ Missing",
+//   api_key: process.env.CLOUDINARY_API_KEY ? "✅ Present" : "❌ Missing",
+//   api_secret: process.env.CLOUDINARY_API_SECRET ? "✅ Present" : "❌ Missing"
+// });
 
 const uploadOnCloudinary = async (localFilePath: string) => {
   // Debug log
   console.log("Cloudinary Configuration:", {
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? "Present" : "Missing",
     api_key: process.env.CLOUDINARY_API_KEY ? "Present" : "Missing",
-    api_secret: process.env.CLOUDINARY_API_SECRET ? "Present" : "Missing"
+    api_secret: process.env.CLOUDINARY_API_SECRET ? "Present" : "Missing",
   });
   try {
     if (!localFilePath) {
@@ -57,33 +57,39 @@ const uploadOnCloudinary = async (localFilePath: string) => {
     }
 
     // Verify Cloudinary configuration
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    if (
+      !process.env.CLOUDINARY_CLOUD_NAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
       console.error("Cloudinary configuration missing:", {
         cloud_name: !!process.env.CLOUDINARY_CLOUD_NAME,
         api_key: !!process.env.CLOUDINARY_API_KEY,
-        api_secret: !!process.env.CLOUDINARY_API_SECRET
+        api_secret: !!process.env.CLOUDINARY_API_SECRET,
       });
       return null;
     }
 
     // Upload the file to cloudinary - using the v2 API as recommended in tutorial
     console.log(`Attempting to upload file: ${localFilePath}`);
-    const response = await new Promise<CloudinaryResponse>((resolve, reject) => {
-      cloudinary.uploader.upload(
-        localFilePath,
-        {
-          resource_type: "auto",
-        },
-        (error, result) => {
-          if (error) {
-            console.error("Upload error details:", error);
-            reject(error);
-            return;
+    const response = await new Promise<CloudinaryResponse>(
+      (resolve, reject) => {
+        cloudinary.uploader.upload(
+          localFilePath,
+          {
+            resource_type: "auto",
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Upload error details:", error);
+              reject(error);
+              return;
+            }
+            resolve(result as CloudinaryResponse);
           }
-          resolve(result as CloudinaryResponse);
-        }
-      );
-    });
+        );
+      }
+    );
 
     // File has been uploaded successfully
     console.log(`File uploaded successfully to Cloudinary: ${response.url}`);

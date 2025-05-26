@@ -80,6 +80,9 @@ userSchema.methods.generateAccessToken = function () {
       fullName: this.fullName,
     },
     process.env.ACCESS_TOKEN_SECRET ?? "secteytdsrgfg",
+    // {
+    //   expiresIn: process.env.ACCESS_TOKEN_EXPIRY! as any,
+    // }
     { expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRY ?? "86400000") }
   );
 };

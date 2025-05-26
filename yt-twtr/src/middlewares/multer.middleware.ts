@@ -27,7 +27,7 @@ const upload = multer({
     } else {
       cb(null, true); // Accept file
     }
-  }
+  },
 });
 
 export default upload;
