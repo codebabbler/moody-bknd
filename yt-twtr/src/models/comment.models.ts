@@ -1,8 +1,9 @@
 import { Schema, model } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+import { IComment } from "../types";
 const commentSchema = new Schema(
   {
-    user: {
+    owner: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -22,5 +23,5 @@ const commentSchema = new Schema(
 );
 commentSchema.plugin(mongooseAggregatePaginate);
 
-const Comment = model("Comment", commentSchema);
+const Comment = model<IComment>("Comment", commentSchema);
 export default Comment;

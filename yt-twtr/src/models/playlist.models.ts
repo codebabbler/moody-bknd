@@ -1,7 +1,8 @@
 import { Schema, model } from "mongoose";
+import { IPlaylist } from "../types";
 const playlistSchema = new Schema(
   {
-    title: {
+    name: {
       type: String,
       required: true,
     },
@@ -25,5 +26,5 @@ const playlistSchema = new Schema(
   }
 );
 
-const Playlist = model("Playlist", playlistSchema);
+const Playlist = model<IPlaylist>("Playlist", playlistSchema);
 export default Playlist;

@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { IUser, TokenPayload } from "../types";
 const userSchema = new Schema(
   {
     username: {
@@ -71,31 +72,30 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
 //   );
 // }
 
-userSchema.methods.generateAccessToken = function () {
-  return jwt.sign(
-    {
-      _id: this._id,
-      email: this.email,
-      username: this.username,
-      fullName: this.fullName,
-    },
-    process.env.ACCESS_TOKEN_SECRET ?? "secteytdsrgfg",
-    // {
-    //   expiresIn: process.env.ACCESS_TOKEN_EXPIRY! as any,
-    // }
-    { expiresIn: parseInt(process.env.ACCESS_TOKEN_EXPIRY ?? "86400000") }
-  );
+userSchema.methods.generateAccessToken = function (): string {
+  const payload: TokenPayload = {
+    _id: this._id.toString(),
+    email: this.email,
+    username: this.username,
+    fullName: this.fullName,
+  };
+  
+  const secret = process.env.ACCESS_TOKEN_SECRET || "secteytdsrgfg";
+  const expiresIn = process.env.ACCESS_TOKEN_EXPIRY || "24h";
+  const options = { expiresIn };
+  
+  return jwt.sign(payload, secret, options as any);
 };
-userSchema.methods.generateRefreshToken = function () {
-  return jwt.sign(
-    {
-      _id: this._id,
-    },
-    process.env.REFRESH_TOKEN_SECRET!,
-    {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY! as any,
-    }
-  );
+userSchema.methods.generateRefreshToken = function (): string {
+  const payload: TokenPayload = {
+    _id: this._id.toString(),
+  };
+  
+  const secret = process.env.REFRESH_TOKEN_SECRET || "refreshsecret";
+  const expiresIn = process.env.REFRESH_TOKEN_EXPIRY || "7d";
+  const options = { expiresIn };
+  
+  return jwt.sign(payload, secret, options as any);
 };
-const User = model("User", userSchema);
+const User = model<IUser>("User", userSchema);
 export default User;

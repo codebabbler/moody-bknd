@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { ITweet } from "../types";
 const tweetSchema = new Schema(
   {
     content: {
@@ -28,5 +29,5 @@ const tweetSchema = new Schema(
   }
 );
 
-const Tweet = model("Tweet", tweetSchema);
+const Tweet = model<ITweet>("Tweet", tweetSchema);
 export default Tweet;

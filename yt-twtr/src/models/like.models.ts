@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { ILike } from "../types";
 const likeSchema = new Schema(
   {
     video: {
@@ -27,5 +28,5 @@ const likeSchema = new Schema(
   }
 );
 
-const Like = model("Like", likeSchema);
+const Like = model<ILike>("Like", likeSchema);
 export default Like;

@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { ISubscription } from "../types";
 const subscriptionSchema = new Schema(
   {
     subscriber: {
@@ -17,5 +18,5 @@ const subscriptionSchema = new Schema(
   }
 );
 
-const Subscription = model("Subscription", subscriptionSchema);
+const Subscription = model<ISubscription>("Subscription", subscriptionSchema);
 export default Subscription;

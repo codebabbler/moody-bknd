@@ -1,6 +1,5 @@
 import multer from "multer";
 import fs from "fs";
-import path from "path";
 
 // Ensure upload directory exists
 const uploadDir = "./public/temp";
@@ -9,10 +8,10 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: function (_, __, cb) {
     cb(null, uploadDir);
   },
-  filename: function (req, file, cb) {
+  filename: function (_, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + "-" + file.originalname);
   },
@@ -20,7 +19,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  fileFilter: (_req, file, cb) => {
+  fileFilter: (_, file, cb) => {
     // Accept images only
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
       cb(null, false); // Don't accept file
