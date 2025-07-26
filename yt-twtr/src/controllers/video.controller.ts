@@ -13,10 +13,11 @@ import {
   PaginationOptions,
   AuthenticatedRequest,
 } from "../types";
+import { getVideoDuration } from "../utils/videoUtils";
 
 // Upload video with thumbnail
 const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
-  const { title, description, duration, isPublished = true } = req.body as CreateVideoRequest & { duration: number };
+  const { title, description, isPublished = true } = req.body as CreateVideoRequest;
   const files = req.files as MulterFiles;
 
   // Validate required fields
@@ -24,9 +25,6 @@ const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiErrors(400, "Title and description are required");
   }
 
-  if (!duration || duration <= 0) {
-    throw new ApiErrors(400, "Valid video duration is required");
-  }
 
   // Check for video file
   const videoFileLocalPath = files.videoFile?.[0]?.path;
@@ -38,6 +36,9 @@ const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
   const thumbnailLocalPath = files.thumbnail?.[0]?.path;
 
   try {
+    // Extract video duration
+    const duration = await getVideoDuration(videoFileLocalPath);
+    
     // Upload video to Cloudinary
     const videoUploadResult: CloudinaryUploadResult | null = await uploadVideoOnCloudinary(videoFileLocalPath);
     if (!videoUploadResult) {
@@ -56,7 +57,7 @@ const uploadVideo = asyncHandler(async (req: Request, res: Response) => {
       thumbnail: thumbnailUploadResult?.secure_url || videoUploadResult.secure_url, // Use video URL as fallback
       title: title.trim(),
       description: description.trim(),
-      duration: Math.round(duration),
+      duration,
       isPublished: Boolean(isPublished),
       owner: (req as AuthenticatedRequest).user._id,
     });

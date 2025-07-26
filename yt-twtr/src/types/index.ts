@@ -109,7 +109,6 @@ export interface UpdateUserProfileRequest {
 export interface CreateVideoRequest {
   title: string;
   description: string;
-  duration: number;
   isPublished?: boolean;
 }
 
