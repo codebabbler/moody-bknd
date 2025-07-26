@@ -123,4 +123,67 @@ const uploadOnCloudinary = async (localFilePath: string) => {
   }
 };
 
+// Specialized video upload function
+const uploadVideoOnCloudinary = async (localFilePath: string) => {
+  try {
+    if (!localFilePath) return null;
+
+    if (!fs.existsSync(localFilePath)) {
+      console.error(`File not found at path: ${localFilePath}`);
+      return null;
+    }
+
+    console.log(`Attempting to upload video: ${localFilePath}`);
+    const response = await new Promise<CloudinaryResponse>(
+      (resolve, reject) => {
+        cloudinary.uploader.upload(
+          localFilePath,
+          {
+            resource_type: "video",
+            video_metadata: true,
+            quality: "auto",
+            format: "mp4",
+            transformation: [
+              {
+                quality: "auto:good",
+                fetch_format: "auto",
+              },
+            ],
+          },
+          (error, result) => {
+            if (error) {
+              console.error("Video upload error details:", error);
+              reject(error);
+              return;
+            }
+            resolve(result as CloudinaryResponse);
+          }
+        );
+      }
+    );
+
+    console.log(`Video uploaded successfully: ${response.url}`);
+
+    // Clean up the local file
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }
+
+    return response;
+  } catch (error) {
+    console.error(`Video upload error: ${error}`);
+    
+    // Clean up file on error
+    if (localFilePath && fs.existsSync(localFilePath)) {
+      try {
+        fs.unlinkSync(localFilePath);
+      } catch (unlinkError) {
+        console.error(`Failed to clean up video file: ${unlinkError}`);
+      }
+    }
+    return null;
+  }
+};
+
+export { uploadVideoOnCloudinary };
 export default uploadOnCloudinary;

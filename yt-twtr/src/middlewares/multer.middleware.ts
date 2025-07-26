@@ -19,12 +19,18 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB limit for videos
+  },
   fileFilter: (_, file, cb) => {
-    // Accept images only
-    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-      cb(null, false); // Don't accept file
-    } else {
+    // Accept images and videos
+    const imageRegex = /\.(jpg|jpeg|png|gif|webp)$/i;
+    const videoRegex = /\.(mp4|avi|mov|mkv|webm|flv)$/i;
+    
+    if (imageRegex.test(file.originalname) || videoRegex.test(file.originalname)) {
       cb(null, true); // Accept file
+    } else {
+      cb(null, false); // Don't accept file
     }
   },
 });

@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { Document, Types, AggregatePaginateModel } from "mongoose";
 import { Request } from "express";
 
 export interface IUser extends Document {
@@ -31,6 +31,8 @@ export interface IVideo extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IVideoModel extends AggregatePaginateModel<IVideo> {}
 
 export interface ITweet extends Document {
   _id: Types.ObjectId;
@@ -135,8 +137,36 @@ export interface UpdateCommentRequest {
   content: string;
 }
 
-export interface AuthenticatedRequest extends Request {
-  user?: IUser;
+// Authenticated request type using intersection
+export type AuthenticatedRequest = Request & {
+  user: IUser; // Required user property
+}
+
+// Typed authenticated request with body
+export type AuthenticatedRequestWithBody<T = any> = Request & {
+  user: IUser;
+  body: T;
+}
+
+// Typed authenticated request with params  
+export type AuthenticatedRequestWithParams<T = any> = Request & {
+  user: IUser;
+  params: T;
+}
+
+// Combined authenticated request with body and params
+export type AuthenticatedRequestWithBodyAndParams<B = any, P = any> = Request & {
+  user: IUser;
+  body: B;
+  params: P;
+}
+
+// Helper type for creating specific authenticated request types
+export type CreateAuthenticatedRequest<Body = any, Params = any, Query = any> = Request & {
+  user: IUser;
+  body: Body;
+  params: Params;
+  query: Query;
 }
 
 export interface TokenPayload {

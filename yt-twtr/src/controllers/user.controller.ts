@@ -13,7 +13,8 @@ import {
   TokenPayload,
   MulterFiles,
   CloudinaryUploadResult,
-  CookieOptions
+  CookieOptions,
+  AuthenticatedRequest
 } from "../types";
 
 interface TokenResponse {
@@ -170,7 +171,7 @@ const loginUser = asyncHandler(async (req: Request<{}, {}, LoginUserRequest>, re
 });
 
 const logoutUser = asyncHandler(async (req: Request, res: Response) => {
-  await User.findByIdAndUpdate(req.user!._id, {
+  await User.findByIdAndUpdate((req as AuthenticatedRequest).user._id, {
     $unset: { refreshToken: 1 },
   }, {
     new: true,
@@ -234,7 +235,7 @@ const refreshAccessToken = asyncHandler(async (req: Request, res: Response) => {
 
 const changePassword = asyncHandler(async (req: Request, res: Response) => {
   const { oldPassword, newPassword } = req.body as ChangePasswordRequest;
-  const user = await User.findById(req.user!._id);
+  const user = await User.findById((req as AuthenticatedRequest).user._id);
   if (!user) {
     throw new ApiErrors(404, "User not found");
   }
@@ -252,12 +253,12 @@ const changePassword = asyncHandler(async (req: Request, res: Response) => {
 const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
   res
     .status(200)
-    .json(new ApiResponse(200, req.user, "User profile fetched successfully"));
+    .json(new ApiResponse(200, (req as AuthenticatedRequest).user, "User profile fetched successfully"));
 });
 
 const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
   const { fullName, username, email } = req.body as UpdateUserProfileRequest;
-  const user = await User.findById(req.user!._id).select(
+  const user = await User.findById((req as AuthenticatedRequest).user._id).select(
     "-password -refreshToken"
   );
   if (!user) {
@@ -285,7 +286,7 @@ const updateavatar = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiErrors(400, "Error uploading avatar image");
   }
   const user = await User.findByIdAndUpdate(
-    req.user!._id,
+    (req as AuthenticatedRequest).user._id,
     { avatar: avatar.url },
     { new: true }
   ).select("-password -refreshToken");
@@ -307,7 +308,7 @@ const updateCoverImage = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiErrors(400, "Error uploading cover image");
   }
   const user = await User.findByIdAndUpdate(
-    req.user!._id,
+    (req as AuthenticatedRequest).user._id,
     { coverImage: coverImage.url },
     { new: true }
   ).select("-password -refreshToken");
