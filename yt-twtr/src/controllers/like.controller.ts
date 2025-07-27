@@ -4,7 +4,7 @@ import ApiErrors from "../utils/ApiErrors";
 import ApiResponse from "../utils/ApiResponse";
 import Like from "../models/like.models";
 import Dislike from "../models/dislike.models";
-import Video from "../models/video.models";
+import Video from "../models/video.model";
 import Tweet from "../models/tweet.models";
 import Comment from "../models/comment.models";
 import { AuthenticatedRequest, PaginationOptions } from "../types";
