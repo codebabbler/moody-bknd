@@ -4,7 +4,6 @@ import ApiErrors from "../utils/ApiErrors";
 import ApiResponse from "../utils/ApiResponse";
 import Tweet from "../models/tweet.models";
 import User from "../models/user.model";
-// import Comment from "../models/comment.models";
 import {
   CreateTweetRequest,
   UpdateTweetRequest,

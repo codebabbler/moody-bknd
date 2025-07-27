@@ -64,6 +64,16 @@ export interface ILike extends Document {
   updatedAt: Date;
 }
 
+export interface IDislike extends Document {
+  _id: Types.ObjectId;
+  video?: Types.ObjectId;
+  comment?: Types.ObjectId;
+  tweet?: Types.ObjectId;
+  dislikedBy: Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface ISubscription extends Document {
   _id: Types.ObjectId;
   subscriber: Types.ObjectId;
