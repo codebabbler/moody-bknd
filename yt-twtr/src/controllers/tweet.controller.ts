@@ -4,6 +4,7 @@ import ApiErrors from "../utils/ApiErrors";
 import ApiResponse from "../utils/ApiResponse";
 import Tweet from "../models/tweet.models";
 import User from "../models/user.model";
+// import Comment from "../models/comment.models";
 import {
   CreateTweetRequest,
   UpdateTweetRequest,
@@ -42,9 +43,9 @@ const createTweet = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiErrors(500, "Something went wrong while creating tweet");
   }
 
-  res.status(201).json(
-    new ApiResponse(201, createdTweet, "Tweet created successfully")
-  );
+  res
+    .status(201)
+    .json(new ApiResponse(201, createdTweet, "Tweet created successfully"));
 });
 
 // Get all tweets with pagination
@@ -101,9 +102,9 @@ const getAllTweets = asyncHandler(async (req: Request, res: Response) => {
     prevPage: pageNum > 1 ? pageNum - 1 : null,
   };
 
-  res.status(200).json(
-    new ApiResponse(200, paginationData, "Tweets fetched successfully")
-  );
+  res
+    .status(200)
+    .json(new ApiResponse(200, paginationData, "Tweets fetched successfully"));
 });
 
 // Get tweet by ID
@@ -129,9 +130,9 @@ const getTweetById = asyncHandler(async (req: Request, res: Response) => {
     throw new ApiErrors(404, "Tweet not found");
   }
 
-  res.status(200).json(
-    new ApiResponse(200, tweet, "Tweet fetched successfully")
-  );
+  res
+    .status(200)
+    .json(new ApiResponse(200, tweet, "Tweet fetched successfully"));
 });
 
 // Update tweet
@@ -169,9 +170,9 @@ const updateTweet = asyncHandler(async (req: Request, res: Response) => {
     { new: true }
   ).populate("user", "username fullName avatar");
 
-  res.status(200).json(
-    new ApiResponse(200, updatedTweet, "Tweet updated successfully")
-  );
+  res
+    .status(200)
+    .json(new ApiResponse(200, updatedTweet, "Tweet updated successfully"));
 });
 
 // Delete tweet
@@ -196,9 +197,9 @@ const deleteTweet = asyncHandler(async (req: Request, res: Response) => {
   // Delete tweet
   await Tweet.findByIdAndDelete(tweetId);
 
-  res.status(200).json(
-    new ApiResponse(200, null, "Tweet deleted successfully")
-  );
+  res
+    .status(200)
+    .json(new ApiResponse(200, null, "Tweet deleted successfully"));
 });
 
 // Get user's tweets
@@ -255,9 +256,11 @@ const getUserTweets = asyncHandler(async (req: Request, res: Response) => {
     prevPage: pageNum > 1 ? pageNum - 1 : null,
   };
 
-  res.status(200).json(
-    new ApiResponse(200, paginationData, "User tweets fetched successfully")
-  );
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, paginationData, "User tweets fetched successfully")
+    );
 });
 
 export {
