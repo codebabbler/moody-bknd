@@ -16,6 +16,7 @@ import {
   CookieOptions,
   AuthenticatedRequest,
 } from "../types";
+import mongoose from "mongoose";
 
 interface TokenResponse {
   accessToken: string;
@@ -273,6 +274,134 @@ const getUserProfile = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
+const getUserChannelProfile = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { username } = req.params;
+    
+    if (!username) {
+      throw new ApiErrors(400, "Username parameter is required");
+    }
+    const channel = await User.aggregate(
+      [
+        {
+          $match: {
+            username: username.toLowerCase()
+          }
+        },
+        {
+          $lookup: {
+            from: "subscriptions",
+            localField: "_id",
+            foreignField: "channel",
+            as: "subscribers"
+          }
+        },
+        {
+          $lookup: {
+            from: "subscriptions",
+            localField: "_id",
+            foreignField: "subscriber",
+            as: "subscribedTo"
+          }
+        },
+        {
+          $addFields: {
+            subscriberCount: { $size: "$subscribers" },
+            channelsSubscribedToCount: { $size: "$subscribedTo" },
+            isSubscribed: {
+              $cond: {
+                if: { 
+                  $and: [
+                    { $ne: [(req as AuthenticatedRequest).user, null] },
+                    { $in: [new mongoose.Types.ObjectId((req as AuthenticatedRequest).user?._id), "$subscribers.subscriber"] }
+                  ]
+                },
+                then: true,
+                else: false
+              }
+            }
+          }
+        },
+        {
+          $project: {
+            fullName: 1,
+            username: 1,
+            email: 1,
+            avatar: 1,
+            coverImage: 1,
+            subscriberCount: 1,
+            channelsSubscribedToCount: 1,
+            isSubscribed: 1
+          }
+        }
+      ]
+    );
+    if (!channel || channel.length === 0) {
+      throw new ApiErrors(404, "Channel not found");
+    }
+    res
+      .status(200)
+      .json(new ApiResponse(200, channel[0], "Channel profile fetched successfully"));
+    return; 
+  }
+);
+
+const getWatchHistory = asyncHandler(
+  async (req: Request, res: Response) => {
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId((req as AuthenticatedRequest).user._id)
+        }
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "watchHistory",
+          foreignField: "_id",
+          as: "watchHistory",
+          pipeline: [
+            {
+              $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                  {
+                    $project: {
+                      _id: 1,
+                      fullName: 1,
+                      username: 1,
+                      avatar: 1
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              $addFields: {
+                owner: { $arrayElemAt: ["$owner", 0] }
+              }
+            }
+          ]
+        }
+      },
+      {
+        $project: {
+          watchHistory: 1
+        }
+      }
+    ]);
+    
+    if (!user || user.length === 0) {
+      throw new ApiErrors(404, "User not found");
+    }
+    
+    res.status(200).json(new ApiResponse(200, user[0]?.watchHistory || [], "Watch history fetched successfully"));
+    return;
+  });
+
 const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
   const { fullName, username, email } = req.body as UpdateUserProfileRequest;
   const user = await User.findById(
@@ -343,6 +472,8 @@ export {
   refreshAccessToken,
   changePassword,
   getUserProfile,
+  getUserChannelProfile,
+  getWatchHistory,
   updateUserProfile,
   updateAvatar,
   updateCoverImage,
